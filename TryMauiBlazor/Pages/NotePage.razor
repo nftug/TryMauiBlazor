@@ -1,0 +1,17 @@
+﻿@page "/note"
+
+<Title>Note</Title>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudTextField Label="Enter your note" Variant="Variant.Text" @bind-Value="_note.Text" Lines="5" />
+    </MudItem>
+    <MudItem xs="6">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth OnClick="OnSaveButtonClicked">Save</MudButton>
+    </MudItem>
+    <MudItem xs="6">
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth
+                   OnClick="OnDeleteButtonClicked" Disabled="@(!_isFileExist)">Delete</MudButton>
+    </MudItem>
+</MudGrid>
+

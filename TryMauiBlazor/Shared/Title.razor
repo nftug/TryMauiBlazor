@@ -1,0 +1,23 @@
+﻿@using TryMauiBlazor.Services
+
+@inject IJSRuntime JSRuntime
+@inject NavigationService NavigationService
+
+<PageTitle>@ChildContent</PageTitle>
+<div style="display: none" @ref="TitleRef">@ChildContent</div>
+
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private ElementReference TitleRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var title = await JSRuntime.InvokeAsync<string>("getInnerHTML", TitleRef);
+        NavigationService.SetTitle(title);
+    }
+}
