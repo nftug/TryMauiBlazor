@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components.WebView.Maui;
 using MudBlazor.Services;
-using TryMauiBlazor.Data;
 using TryMauiBlazor.Services;
 using MudBlazor;
 using TryMauiBlazor.Services.UserPreferences;
@@ -29,7 +28,6 @@ public static class MauiProgram
 
         builder.Services.AddTransient<NoteRepositoryService>();
         builder.Services.AddSingleton<NoteStoreService>();
-        builder.Services.AddSingleton<WeatherForecastService>();
 
         builder.Services.AddMudServices(config =>
         {

@@ -6,7 +6,15 @@
 @inject NavigationService NavigationService
 
 <MudAppBar Elevation="0" Fixed>
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggleCallback" />
+    @if (NavigationService.HasBackButton)
+    {
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Edge="Edge.Start" OnClick="@OnBackButtonClicked" />
+    }
+    else
+    {
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@DrawerToggleCallback" />
+    }
+
     <MudText Typo="Typo.h6" Class="ml-3">@NavigationService.Title</MudText>
 
     <MudSpacer />
@@ -20,16 +28,25 @@
 @code {
     [Parameter]
     public EventCallback<MouseEventArgs> DrawerToggleCallback { get; set; }
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = null!;
 
     protected override void OnInitialized()
     {
-        NavigationService.TitleChanged += OnTitleChanged;
+        NavigationService.TitleChanged += OnChangeState;
+        NavigationService.BackButtonChanged += OnChangeState;
     }
 
     public void Dispose()
     {
-        NavigationService.TitleChanged -= OnTitleChanged;
+        NavigationService.TitleChanged -= OnChangeState;
+        NavigationService.BackButtonChanged -= OnChangeState;
     }
 
-    public void OnTitleChanged() => InvokeAsync(StateHasChanged);
+    public void OnChangeState() => InvokeAsync(StateHasChanged);
+
+    public async void OnBackButtonClicked()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back", -1);
+    }
 }

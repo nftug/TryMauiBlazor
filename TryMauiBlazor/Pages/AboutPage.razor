@@ -1,0 +1,31 @@
+﻿@page "/about"
+
+@using TryMauiBlazor.Models
+
+<Title Value="About" />
+
+<MudHidden Breakpoint="Breakpoint.MdAndUp">
+    <div style="text-align: center;">
+        <MudImage Src="images/dotnet_bot.svg" Width="128" Alt="Dotnet Bot" Class="ma-4" />
+
+        <MudText Typo="Typo.h4" GutterBottom="true">@About.Title</MudText>
+        <MudText Class="mb-4">@About.Version</MudText>
+        <MudText Class="mb-8" Typo="Typo.body2">@About.Message</MudText>
+    </div>
+</MudHidden>
+
+<MudHidden Breakpoint="Breakpoint.SmAndDown">
+    <div class="d-flex gap-4">
+        <MudImage Src="images/dotnet_bot.svg" Width="128" Alt="Dotnet Bot" Class="ma-4" />
+
+        <div>
+            <MudText Typo="Typo.h4" GutterBottom="true">@About.Title</MudText>
+            <MudText Class="mb-4">@About.Version</MudText>
+            <MudText Class="mb-8" Typo="Typo.body2">@About.Message</MudText>
+        </div>
+    </div>
+</MudHidden>
+
+<div class="mx-4 mt-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Href="@About.MoreInfoUrl">Click here for more info</MudButton>
+</div>

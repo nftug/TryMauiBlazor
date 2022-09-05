@@ -1,23 +1,18 @@
 ﻿@using TryMauiBlazor.Services
 
-@inject IJSRuntime JSRuntime
 @inject NavigationService NavigationService
 
-<PageTitle>@ChildContent</PageTitle>
-<div style="display: none" @ref="TitleRef">@ChildContent</div>
-
+<PageTitle>@Value</PageTitle>
 
 @code {
     [Parameter]
-    public RenderFragment? ChildContent { get; set; }
+    public string? Value { get; set; }
+    [Parameter]
+    public bool BackButton { get; set; }
 
-    private ElementReference TitleRef;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnInitialized()
     {
-        if (!firstRender) return;
-
-        var title = await JSRuntime.InvokeAsync<string>("getInnerHTML", TitleRef);
-        NavigationService.SetTitle(title);
+        NavigationService.SetTitle(Value);
+        NavigationService.SetHasBackButton(BackButton);
     }
 }

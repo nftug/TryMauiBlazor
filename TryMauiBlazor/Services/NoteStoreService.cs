@@ -26,16 +26,16 @@ internal class NoteStoreService
 
     public async Task SaveNoteAsync(Note note)
     {
-        await _repositoryService.SaveNoteAsync(note);
+        var savedNote = await _repositoryService.SaveNoteAsync(note);
 
         if (Notes.Any(x => x.Filename == note.Filename))
         {
             int targetIndex = Notes.FindIndex(x => x.Filename == note.Filename);
-            Notes[targetIndex] = note;
+            Notes[targetIndex] = savedNote;
         }
         else
         {
-            Notes.Add(note);
+            Notes.Add(savedNote);
         }
     }
 

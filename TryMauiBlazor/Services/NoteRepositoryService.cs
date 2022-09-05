@@ -1,4 +1,5 @@
-﻿using TryMauiBlazor.Models;
+﻿using TryMauiBlazor.Extensions;
+using TryMauiBlazor.Models;
 
 namespace TryMauiBlazor.Services;
 
@@ -8,11 +9,15 @@ internal class NoteRepositoryService
     {
         var noteModel = new Note();
         noteModel.Filename = filename;
+        var noteFullPath = GetFullPath(filename);
 
-        if (date != null || File.Exists(filename))
+        if (date != null || File.Exists(noteFullPath))
         {
-            noteModel.Date = date ?? File.GetCreationTime(filename);
-            noteModel.Text = await File.ReadAllTextAsync(filename);
+            noteModel.Date = date ?? File.GetCreationTime(noteFullPath);
+            var lines = await File.ReadAllLinesAsync(noteFullPath);
+
+            noteModel.Text = string.Join(Environment.NewLine, lines);
+            noteModel.Title = noteModel.Text.GetFirstLine();
         }
 
         return noteModel;
@@ -21,17 +26,17 @@ internal class NoteRepositoryService
     public async Task<Note> LoadNewNoteAsync()
     {
         string randomFileName = $"{Path.GetRandomFileName()}.notes.txt";
-        return await LoadNoteAsync(Path.Combine(appDataPath, randomFileName));
+        return await LoadNoteAsync(randomFileName);
     }
 
     public async IAsyncEnumerable<Note> LoadNotesAsync()
     {
         var items = Directory
-           .EnumerateFiles(appDataPath, "*.notes.txt")
+           .EnumerateFiles(AppDataPath, "*.notes.txt")
            .Select(filename => new
            {
-               filename,
-               date = File.GetCreationTime(filename)
+               filename = Path.GetFileName(filename),
+               date = File.GetCreationTime(GetFullPath(filename))
            })
            .OrderBy(x => x.date);
 
@@ -39,18 +44,21 @@ internal class NoteRepositoryService
             yield return await LoadNoteAsync(item.filename, item.date);
     }
 
-    public async Task SaveNoteAsync(Note note)
+    public async Task<Note> SaveNoteAsync(Note note)
     {
-        await File.WriteAllTextAsync(note.Filename, note.Text);
+        await File.WriteAllTextAsync(GetFullPath(note.Filename), note.Text);
+        return await LoadNoteAsync(note.Filename);
     }
 
     public void DeleteNote(string filename)
     {
-        File.Delete(filename);
+        File.Delete(GetFullPath(filename));
     }
 
-    public bool IsExisted(string filename) => File.Exists(filename);
+    public bool IsExisted(string filename) => File.Exists(GetFullPath(filename));
 
-    private string appDataPath => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+    private string AppDataPath => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+    private string GetFullPath(string filename) => Path.Combine(AppDataPath, filename);
 }
 

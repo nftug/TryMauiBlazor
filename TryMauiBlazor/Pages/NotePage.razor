@@ -1,17 +1,25 @@
-﻿@page "/note"
+﻿@page "/note/{Filename?}"
 
-<Title>Note</Title>
+<Title BackButton Value="@(Filename == null ? "New Note" : "Edit Note")" />
 
 <MudGrid>
     <MudItem xs="12">
         <MudTextField Label="Enter your note" Variant="Variant.Text" @bind-Value="_note.Text" Lines="5" />
     </MudItem>
+
     <MudItem xs="6">
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth OnClick="OnSaveButtonClicked">Save</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth StartIcon="@Icons.Filled.Save"
+                   OnClick="OnSaveButtonClicked" Disabled="@(_isProcessing)">
+            Save
+            <ButtonLoadingOverlay Visible="@_isSaving" />
+        </MudButton>
     </MudItem>
     <MudItem xs="6">
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth
-                   OnClick="OnDeleteButtonClicked" Disabled="@(!_isFileExist)">Delete</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth StartIcon="@Icons.Filled.Delete"
+                   OnClick="OnDeleteButtonClicked" Disabled="@(!_isFileExist || _isProcessing)">
+            Delete
+            <ButtonLoadingOverlay Visible="@_isDeleting" />
+        </MudButton>
     </MudItem>
 </MudGrid>
 

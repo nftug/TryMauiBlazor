@@ -1,0 +1,7 @@
+﻿.fab {
+    bottom: 24px;
+    right: 24px;
+    flex: 1;
+    z-index: 1000;
+    position: fixed
+}

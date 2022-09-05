@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System.Collections.Specialized;
 using System.Web;
 
@@ -35,8 +36,8 @@ internal class NavigationService
     }
 
     public event Action? TitleChanged;
-    private string _title = string.Empty;
-    public string Title
+    private string? _title = string.Empty;
+    public string? Title
     {
         get => _title;
         private set
@@ -47,8 +48,26 @@ internal class NavigationService
         }
     }
 
-    public void SetTitle(string title)
+    public void SetTitle(string? title)
     {
         Title = title;
+    }
+
+    public event Action? BackButtonChanged;
+    private bool _hasBackButton { get; set; }
+    public bool HasBackButton
+    {
+        get => _hasBackButton;
+        private set
+        {
+            if (value == _hasBackButton) return;
+            _hasBackButton = value;
+            BackButtonChanged?.Invoke();
+        }
+    }
+
+    public void SetHasBackButton(bool value)
+    {
+        HasBackButton = value;
     }
 }

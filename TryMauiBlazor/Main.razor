@@ -1,6 +1,7 @@
 ﻿@using TryMauiBlazor.Services
 
 @inject NavigationService NavigationService
+@inject NavigationManager NavigationManager
 
 <Router AppAssembly="@typeof(Main).Assembly" OnNavigateAsync="OnNavigateAsync">
     <Found Context="routeData">

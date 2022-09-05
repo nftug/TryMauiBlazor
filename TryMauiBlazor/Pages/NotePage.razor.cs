@@ -8,7 +8,6 @@ namespace TryMauiBlazor.Pages;
 public partial class NotePage : ComponentBase
 {
     [Parameter]
-    [SupplyParameterFromQuery]
     public string? Filename { get; set; }
 
     [Inject]
@@ -17,9 +16,14 @@ public partial class NotePage : ComponentBase
     private IDialogService DialogService { get; set; } = null!;
     [Inject]
     private NoteStoreService NoteStoreService { get; set; } = null!;
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
 
     private Note _note = null!;
     private bool _isFileExist => NoteStoreService.IsExisted(_note.Filename);
+    private bool _isSaving;
+    private bool _isDeleting;
+    private bool _isProcessing => _isSaving || _isDeleting;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -48,13 +52,23 @@ public partial class NotePage : ComponentBase
 
     private async Task OnSaveButtonClicked()
     {
+        _isSaving = true;
+        await Task.Delay(1000);  // Dummy delay
         await NoteStoreService.SaveNoteAsync(_note);
+        _isSaving = false;
+
         Snackbar.Add("Saved the note.", Severity.Success);
         StateHasChanged();
     }
 
     private async void OnDeleteButtonClicked()
     {
+        if (!_isFileExist)
+        {
+            Snackbar.Add("The file does not exist.", Severity.Error);
+            return;
+        }
+
         bool? result = await DialogService.ShowMessageBox(
             "Confirm",
             "Are you sure to delete this note?",
@@ -62,12 +76,15 @@ public partial class NotePage : ComponentBase
         );
         if (result == null) return;
 
-        if (_isFileExist)
-            NoteStoreService.DeleteNote(_note.Filename);
-
-        _note = await NoteStoreService.GetNewNoteAsync();
-        Snackbar.Add("Deleted the note.", Severity.Success);
+        _isDeleting = true;
         StateHasChanged();
+
+        await Task.Delay(1000);  // Dummy delay
+        NoteStoreService.DeleteNote(_note.Filename);
+        _isDeleting = false;
+
+        Snackbar.Add("Deleted the note.", Severity.Success);
+        NavigationManager.NavigateTo("/", false, true);
     }
 }
 
