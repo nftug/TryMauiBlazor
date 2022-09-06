@@ -29,7 +29,7 @@ internal class NoteRepositoryService
         return await LoadNoteAsync(randomFileName);
     }
 
-    public async IAsyncEnumerable<Note> LoadNotesAsync()
+    public async Task<List<Note>> LoadNotesAsync()
     {
         var items = Directory
            .EnumerateFiles(AppDataPath, "*.notes.txt")
@@ -38,10 +38,17 @@ internal class NoteRepositoryService
                filename = Path.GetFileName(filename),
                date = File.GetCreationTime(GetFullPath(filename))
            })
-           .OrderBy(x => x.date);
+           .OrderByDescending(x => x.date);
+
+        var result = new List<Note>();
 
         foreach (var item in items)
-            yield return await LoadNoteAsync(item.filename, item.date);
+        {
+            var note = await LoadNoteAsync(item.filename, item.date);
+            result.Add(note);
+        }
+
+        return result;
     }
 
     public async Task<Note> SaveNoteAsync(Note note)

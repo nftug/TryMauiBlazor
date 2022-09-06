@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using TryMauiBlazor.Models;
 using TryMauiBlazor.Services;
+using TryMauiBlazor.Shared;
+using Color = MudBlazor.Color;
 
 namespace TryMauiBlazor.Pages;
 
@@ -10,8 +14,6 @@ public partial class NotePage : ComponentBase
     [Parameter]
     public string? Filename { get; set; }
 
-    [Inject]
-    private ISnackbar Snackbar { get; set; } = null!;
     [Inject]
     private IDialogService DialogService { get; set; } = null!;
     [Inject]
@@ -32,7 +34,7 @@ public partial class NotePage : ComponentBase
             var note = NoteStoreService.GetNote(Filename);
             if (note == null)
             {
-                Snackbar.Add("Cannot find the note.", Severity.Error);
+                await (Toast.Make("Cannot find the note.")).Show();
                 _note = await NoteStoreService.GetNewNoteAsync();
             }
             else
@@ -53,11 +55,10 @@ public partial class NotePage : ComponentBase
     private async Task OnSaveButtonClicked()
     {
         _isSaving = true;
-        await Task.Delay(1000);  // Dummy delay
         await NoteStoreService.SaveNoteAsync(_note);
         _isSaving = false;
 
-        Snackbar.Add("Saved the note.", Severity.Success);
+        await (Toast.Make("Saved the note.", ToastDuration.Short)).Show();
         StateHasChanged();
     }
 
@@ -65,25 +66,29 @@ public partial class NotePage : ComponentBase
     {
         if (!_isFileExist)
         {
-            Snackbar.Add("The file does not exist.", Severity.Error);
+            await (Toast.Make("The file does not exist")).Show();
             return;
         }
 
-        bool? result = await DialogService.ShowMessageBox(
-            "Confirm",
-            "Are you sure to delete this note?",
-            cancelText: "Cancel"
-        );
-        if (result == null) return;
+        var parameters = new DialogParameters()
+        {
+            ["ContentText"] = "Are you sure to delete this note?",
+            ["ButtonText"] = "Delete",
+            ["Color"] = Color.Error,
+            ["Variant"] = Variant.Filled,
+            ["StartIcon"] = Icons.Filled.Delete
+        };
+        var dialog = DialogService.Show<Dialog>("Delete", parameters);
+        var result = await dialog.Result;
+        if (result.Cancelled) return;
 
         _isDeleting = true;
         StateHasChanged();
 
-        await Task.Delay(1000);  // Dummy delay
         NoteStoreService.DeleteNote(_note.Filename);
         _isDeleting = false;
 
-        Snackbar.Add("Deleted the note.", Severity.Success);
+        await (Toast.Make("Deleted the note.", ToastDuration.Short)).Show();
         NavigationManager.NavigateTo("/", false, true);
     }
 }

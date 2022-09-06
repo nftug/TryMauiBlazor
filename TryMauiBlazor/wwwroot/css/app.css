@@ -5,3 +5,7 @@
     z-index: 1000;
     position: fixed
 }
+
+body {
+    -webkit-user-select: none;
+}

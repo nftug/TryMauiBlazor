@@ -4,19 +4,9 @@
 
 @if (_isLoading)
 {
-    <MudCard>
-        <MudCardHeader Style="display: block;">
-            <CardHeaderContent>
-                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" />
-            </CardHeaderContent>
-        </MudCardHeader>
-        <MudCardContent>
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="100%" />
-        </MudCardContent>
-        <MudCardActions>
-            <MudSkeleton Width="64px" Height="40px" Class="ml-2" />
-        </MudCardActions>
-    </MudCard>
+    <div class="d-flex justify-center">
+        <MudProgressCircular Class="mt-2" Size="Size.Medium" Indeterminate="true" />
+    </div>
 }
 else
 {

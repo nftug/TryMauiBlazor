@@ -3,6 +3,9 @@
     "Windows Machine": {
       "commandName": "MsixPackage",
       "nativeDebugging": false
+    },
+    "プロファイル 1": {
+      "commandName": "Executable"
     }
   }
 }

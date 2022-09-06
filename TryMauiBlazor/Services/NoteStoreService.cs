@@ -15,9 +15,7 @@ internal class NoteStoreService
 
     public async Task LoadNotes()
     {
-        Notes.Clear();
-        await foreach (var note in _repositoryService.LoadNotesAsync())
-            Notes.Add(note);
+        Notes = await _repositoryService.LoadNotesAsync();
     }
 
     public Note? GetNote(string filename) => Notes.FirstOrDefault(x => x.Filename == filename);
@@ -28,15 +26,9 @@ internal class NoteStoreService
     {
         var savedNote = await _repositoryService.SaveNoteAsync(note);
 
-        if (Notes.Any(x => x.Filename == note.Filename))
-        {
-            int targetIndex = Notes.FindIndex(x => x.Filename == note.Filename);
-            Notes[targetIndex] = savedNote;
-        }
-        else
-        {
-            Notes.Add(savedNote);
-        }
+        Notes = Notes.Where(x => x.Filename != savedNote.Filename).ToList();
+        Notes.Add(savedNote);
+        Notes = Notes.OrderByDescending(x => x.Date).ToList();
     }
 
     public void DeleteNote(string filename)

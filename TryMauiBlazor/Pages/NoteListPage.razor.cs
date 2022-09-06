@@ -8,12 +8,13 @@ public partial class NoteListPage : ComponentBase
     [Inject]
     private NoteStoreService NoteStoreService { get; set; } = null!;
 
-    private bool _isLoading;
+    private bool _isLoading = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnParametersSet()
     {
-        await base.OnInitializedAsync();
-        await LoadNotes();
+        base.OnParametersSet();
+
+        InvokeAsync(async () => await LoadNotes());
     }
 
     private async Task LoadNotes()
@@ -21,8 +22,11 @@ public partial class NoteListPage : ComponentBase
         if (NoteStoreService.Notes.Any()) return;
 
         _isLoading = true;
-        await Task.Delay(2000);  // Dummy delay
+        StateHasChanged();
+
         await NoteStoreService.LoadNotes();
+
         _isLoading = false;
+        StateHasChanged();
     }
 }
