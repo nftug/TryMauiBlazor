@@ -1,6 +1,16 @@
 ﻿@page "/note/{Filename?}"
 
+@using TryMauiBlazor.Models
+
 <Title BackButton Value="@(Filename == null ? "New Note" : "Edit Note")" />
+
+@if (_isLoading)
+{
+    <div class="d-flex justify-center">
+        <MudProgressCircular Class="mt-2" Size="Size.Medium" Indeterminate="true" />
+    </div>
+    return;
+}
 
 <MudGrid>
     <MudItem xs="12">
@@ -23,3 +33,25 @@
     </MudItem>
 </MudGrid>
 
+<MudGrid Class="mt-6">
+    <MudItem xs="6">
+        <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth StartIcon="@Icons.Filled.Camera"
+                   OnClick="TakePhoto" Disabled="ThisDevice.IsWinUI">
+            Take Photo
+        </MudButton>
+    </MudItem>
+
+    <MudItem xs="6">
+        <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth StartIcon="@Icons.Filled.Image"
+                   OnClick="PickPhoto">
+            Pick Photo
+        </MudButton>
+    </MudItem>
+</MudGrid>
+
+<div class="mt-4">
+    @if (_imageBase64Source != null)
+    {
+        <MudImage Src="@_imageBase64Source" Class="rounded-sm" Fluid />
+    }
+</div>

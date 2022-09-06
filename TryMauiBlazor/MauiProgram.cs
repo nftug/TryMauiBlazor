@@ -3,6 +3,7 @@ using MudBlazor.Services;
 using TryMauiBlazor.Services;
 using MudBlazor;
 using TryMauiBlazor.Services.UserPreferences;
+using CommunityToolkit.Maui;
 
 namespace TryMauiBlazor;
 
@@ -12,6 +13,7 @@ public static class MauiProgram
     {
         var builder = MauiApp.CreateBuilder();
         builder
+            .UseMauiCommunityToolkit()
             .UseMauiApp<App>()
             .ConfigureFonts(fonts =>
             {
@@ -19,9 +21,10 @@ public static class MauiProgram
             });
 
         builder.Services.AddMauiBlazorWebView();
-        // #if DEBUG
+
+#if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
-        // #endif
+#endif
 
         builder.Services.AddSingleton<LayoutService>();
         builder.Services.AddSingleton<NavigationService>();
