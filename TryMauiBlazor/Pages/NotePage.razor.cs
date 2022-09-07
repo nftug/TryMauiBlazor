@@ -1,8 +1,6 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
-using Dalvik.SystemInterop;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Maui.Controls;
 using MudBlazor;
 using TryMauiBlazor.Extensions;
 using TryMauiBlazor.Models;
@@ -29,7 +27,7 @@ public partial class NotePage : ComponentBase
     private bool _isSaving;
     private bool _isDeleting;
     private bool _isProcessing => _isSaving || _isDeleting;
-    private bool _isLoading;
+    private bool _isLoading = true;
 
     private string? _imageBase64Source;
     private FileResult? _image;
@@ -59,10 +57,9 @@ public partial class NotePage : ComponentBase
             _note = await NoteStoreService.GetNewNoteAsync();
         }
 
-        string? localImagePath = GetLocalImagePath();
-        if (File.Exists(localImagePath))
+        if (File.Exists(LocalImagePath))
         {
-            var imageBytes = await File.ReadAllBytesAsync(localImagePath);
+            var imageBytes = await File.ReadAllBytesAsync(LocalImagePath);
             _imageBase64Source = await Task.Run(() => Convert.ToBase64String(imageBytes));
             _imageBase64Source = string.Format("data:image/jpeg;base64,{0}", _imageBase64Source);
         }
@@ -79,10 +76,9 @@ public partial class NotePage : ComponentBase
         // save the image file into local storage
         if (_image != null)
         {
-            string? localImagePath = GetLocalImagePath();
-            using Stream sourceStream = await _image.OpenReadAsync();
-            using FileStream localFileStream = File.OpenWrite(localImagePath);
-            await sourceStream.CopyToAsync(localFileStream);
+            using Stream imageStream = await _image.OpenReadAsync();
+            using FileStream localFileStream = File.OpenWrite(LocalImagePath);
+            await imageStream.CopyToAsync(localFileStream);
         }
 
         _isSaving = false;
@@ -115,9 +111,8 @@ public partial class NotePage : ComponentBase
         StateHasChanged();
 
         NoteStoreService.DeleteNote(_note.Filename);
-        string? localImagePath = GetLocalImagePath();
-        if (File.Exists(localImagePath))
-            File.Delete(localImagePath);
+        if (File.Exists(LocalImagePath))
+            File.Delete(LocalImagePath);
 
         _isDeleting = false;
 
@@ -140,13 +135,13 @@ public partial class NotePage : ComponentBase
         await SetImageSource();
     }
 
-    private async void PickPhoto()
+    private async void PickImage()
     {
         var customFileType = new FilePickerFileType(
             new Dictionary<DevicePlatform, IEnumerable<string>>
             {
-                { DevicePlatform.Android, new[] { "image/jpeg" } },
-                { DevicePlatform.WinUI, new[] { ".jpg", ".jpeg" } },
+                { DevicePlatform.Android, new[] { "image/jpeg", "image/png" } },
+                { DevicePlatform.WinUI, new[] { ".jpg", ".jpeg", ".png" } },
             });
         PickOptions options = new()
         {
@@ -155,27 +150,34 @@ public partial class NotePage : ComponentBase
         };
 
         var result = await FilePicker.Default.PickAsync(options);
-        if (result != null)
-        {
-            _image = result;
-            await SetImageSource();
-        }
+        if (result == null) return;
+
+        _image = result;
+        await SetImageSource();
+    }
+
+    private void DeleteImage()
+    {
+        _image = null;
+        _imageBase64Source = null;
     }
 
     private string AppDataPath => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+    private string LocalImagePath => Path.Combine(AppDataPath, $"{_note.Filename}.jpg");
 
     private async Task SetImageSource()
     {
         if (_image == null) return;
 
-        using Stream sourceStream = await _image.OpenReadAsync();
-        var imageBytes = await sourceStream.ConvertToBase64StringAsync();
-        _imageBase64Source = string.Format("data:image/jpeg;base64,{0}", imageBytes);
+        _isLoading = true;
+        StateHasChanged();
 
+        using Stream sourceStream = await _image.OpenReadAsync();
+        var imageBase64 = await sourceStream.ConvertToBase64StringAsync();
+        _imageBase64Source = string.Format("data:image/jpeg;base64,{0}", imageBase64);
+
+        _isLoading = false;
         StateHasChanged();
     }
-
-    private string GetLocalImagePath()
-        => Path.Combine(AppDataPath, $"{_note.Filename}.jpg");
 }
 

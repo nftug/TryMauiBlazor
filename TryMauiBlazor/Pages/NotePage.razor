@@ -4,13 +4,11 @@
 
 <Title BackButton Value="@(Filename == null ? "New Note" : "Edit Note")" />
 
-@if (_isLoading)
-{
+<MudOverlay Visible="@_isLoading" DarkBackground="true">
     <div class="d-flex justify-center">
-        <MudProgressCircular Class="mt-2" Size="Size.Medium" Indeterminate="true" />
+        <MudProgressCircular Class="mt-2" Size="Size.Medium" Indeterminate="true" Color="Color.Inherit" />
     </div>
-    return;
-}
+</MudOverlay>
 
 <MudGrid>
     <MudItem xs="12">
@@ -33,25 +31,31 @@
     </MudItem>
 </MudGrid>
 
-<MudGrid Class="mt-6">
-    <MudItem xs="6">
-        <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth StartIcon="@Icons.Filled.Camera"
-                   OnClick="TakePhoto" Disabled="ThisDevice.IsWinUI">
-            Take Photo
-        </MudButton>
-    </MudItem>
-
-    <MudItem xs="6">
-        <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth StartIcon="@Icons.Filled.Image"
-                   OnClick="PickPhoto">
-            Pick Photo
-        </MudButton>
-    </MudItem>
-</MudGrid>
-
-<div class="mt-4">
-    @if (_imageBase64Source != null)
-    {
+@if (_imageBase64Source != null)
+{
+    <div class="mt-6" style="text-align: center;">
         <MudImage Src="@_imageBase64Source" Class="rounded-sm" Fluid />
-    }
-</div>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" FullWidth StartIcon="@Icons.Filled.Delete"
+               Class="mt-3" OnClick="DeleteImage">
+            Delete Image
+        </MudButton>
+    </div>
+}
+else
+{
+    <MudGrid>
+        <MudItem xs="6">
+            <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth StartIcon="@Icons.Filled.Camera"
+                   OnClick="TakePhoto" Disabled="ThisDevice.IsWinUI">
+                Take Photo
+            </MudButton>
+        </MudItem>
+
+        <MudItem xs="6">
+            <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth StartIcon="@Icons.Filled.Image"
+                   OnClick="PickImage">
+                Pick Image
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+}
