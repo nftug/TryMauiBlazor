@@ -1,7 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider @ref="@_mudThemeProvider"
-                  Theme="new MudTheme()"
+<MudThemeProvider Theme="new MudTheme()"
                   IsDarkMode="@LayoutService.IsDarkMode"
                   IsDarkModeChanged="LayoutService.SetDarkMode" />
 <MudDialogProvider FullWidth="true"

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using MudBlazor;
 using TryMauiBlazor.Services;
 
 namespace TryMauiBlazor.Shared;
@@ -8,32 +7,20 @@ public partial class MainLayout : LayoutComponentBase, IDisposable
 {
     [Inject] private LayoutService LayoutService { get; set; } = null!;
 
-    private MudThemeProvider? _mudThemeProvider = null!;
-
     protected override void OnInitialized()
     {
         LayoutService.MajorUpdateOccurred += LayoutServiceOnMajorUpdateOccurred;
+        ApplyUserPreferences();
+
         base.OnInitialized();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private void ApplyUserPreferences()
     {
-        await base.OnAfterRenderAsync(firstRender);
-
-        if (firstRender)
-        {
-            await ApplyUserPreferences();
-            StateHasChanged();
-        }
-    }
-
-    private async Task ApplyUserPreferences()
-    {
-        if (_mudThemeProvider == null) return;
-        var defaultDarkMode = await _mudThemeProvider.GetSystemPreference();
+        var currentTheme = Application.Current?.RequestedTheme;
+        var defaultDarkMode = currentTheme == AppTheme.Dark;
         LayoutService.ApplyUserPreferences(defaultDarkMode);
     }
-
 
     public void Dispose()
     {

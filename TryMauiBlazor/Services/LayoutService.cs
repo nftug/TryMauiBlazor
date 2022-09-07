@@ -24,13 +24,12 @@ internal class LayoutService
         IsDarkMode = value;
     }
 
-
     public void ApplyUserPreferences(bool isDarkModeDefaultTheme)
     {
         _userPreferences = _userPreferencesService.LoadUserPreferences();
-        if (_userPreferences != null)
+        if (_userPreferences.DarkTheme != null)
         {
-            IsDarkMode = _userPreferences.DarkTheme;
+            IsDarkMode = (bool)_userPreferences.DarkTheme;
         }
         else
         {

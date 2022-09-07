@@ -6,5 +6,5 @@ namespace TryMauiBlazor.Services.UserPreferences;
 
 public class UserPreferences
 {
-    public bool DarkTheme { get; set; }
+    public bool? DarkTheme { get; set; } = null;
 }

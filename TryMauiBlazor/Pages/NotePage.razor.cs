@@ -80,10 +80,9 @@ public partial class NotePage : ComponentBase
             using FileStream localFileStream = File.OpenWrite(LocalImagePath);
             await imageStream.CopyToAsync(localFileStream);
         }
-        else
+        else if (_imageBase64Source == null && File.Exists(LocalImagePath))
         {
-            if (File.Exists(LocalImagePath))
-                File.Delete(LocalImagePath);
+            File.Delete(LocalImagePath);
         }
 
         _isSaving = false;
