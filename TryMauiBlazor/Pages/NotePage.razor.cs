@@ -22,15 +22,16 @@ public partial class NotePage : ComponentBase
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
 
-    private Note _note = new Note();
+    private Note _note = new();
     private bool _isFileExist => NoteStoreService.IsExisted(_note.Filename);
     private bool _isSaving;
     private bool _isDeleting;
     private bool _isProcessing => _isSaving || _isDeleting;
     private bool _isLoading = true;
-
     private string? _imageBase64Source;
-    private FileResult? _image;
+
+    private string AppDataPath => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+    private string LocalImagePath => Path.Combine(AppDataPath, $"{_note.Filename}.img");
 
     protected override async Task OnParametersSetAsync()
     {
@@ -58,11 +59,7 @@ public partial class NotePage : ComponentBase
         }
 
         if (File.Exists(LocalImagePath))
-        {
-            var imageBytes = await File.ReadAllBytesAsync(LocalImagePath);
-            _imageBase64Source = await Task.Run(() => Convert.ToBase64String(imageBytes));
-            _imageBase64Source = string.Format("data:image/jpeg;base64,{0}", _imageBase64Source);
-        }
+            _imageBase64Source = await File.ReadAllTextAsync(LocalImagePath);
 
         _isLoading = false;
         StateHasChanged();
@@ -74,11 +71,9 @@ public partial class NotePage : ComponentBase
         await NoteStoreService.SaveNoteAsync(_note);
 
         // save the image file into local storage
-        if (_image != null)
+        if (_imageBase64Source != null)
         {
-            using Stream imageStream = await _image.OpenReadAsync();
-            using FileStream localFileStream = File.OpenWrite(LocalImagePath);
-            await imageStream.CopyToAsync(localFileStream);
+            await File.WriteAllTextAsync(LocalImagePath, _imageBase64Source);
         }
         else if (_imageBase64Source == null && File.Exists(LocalImagePath))
         {
@@ -126,17 +121,10 @@ public partial class NotePage : ComponentBase
 
     private async void TakePhoto()
     {
-        if (!MediaPicker.Default.IsCaptureSupported)
-        {
-            await (Toast.Make("This platform does not support any capture devices.")).Show();
-            return;
-        }
-
         var image = await MediaPicker.Default.CapturePhotoAsync();
         if (image == null) return;
-        _image = image;
 
-        await SetImageSource();
+        await SetImageSource(image);
     }
 
     private async void PickImage()
@@ -153,30 +141,25 @@ public partial class NotePage : ComponentBase
             FileTypes = customFileType,
         };
 
-        var result = await FilePicker.Default.PickAsync(options);
-        if (result == null) return;
+        var image = await FilePicker.Default.PickAsync(options);
+        if (image == null) return;
 
-        _image = result;
-        await SetImageSource();
+        await SetImageSource(image);
     }
 
     private void DeleteImage()
     {
-        _image = null;
         _imageBase64Source = null;
     }
 
-    private string AppDataPath => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-    private string LocalImagePath => Path.Combine(AppDataPath, $"{_note.Filename}.jpg");
-
-    private async Task SetImageSource()
+    private async Task SetImageSource(FileResult image)
     {
-        if (_image == null) return;
+        if (image == null) return;
 
         _isLoading = true;
         StateHasChanged();
 
-        using Stream sourceStream = await _image.OpenReadAsync();
+        using Stream sourceStream = await image.OpenReadAsync();
         var imageBase64 = await sourceStream.ConvertToBase64StringAsync();
         _imageBase64Source = string.Format("data:image/jpeg;base64,{0}", imageBase64);
 
@@ -184,4 +167,3 @@ public partial class NotePage : ComponentBase
         StateHasChanged();
     }
 }
-

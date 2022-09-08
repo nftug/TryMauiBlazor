@@ -26,7 +26,7 @@ else
             </MudCardContent>
 
             <MudCardActions>
-                <MudButton Variant="Variant.Text" Color="Color.Primary" Href="@($"/note/{note.Filename}")">Edit</MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => GoToNote(note.Filename))">Edit</MudButton>
             </MudCardActions>
         </MudCard>
     }
@@ -34,6 +34,6 @@ else
 
 <span class="fab">
     <MudTooltip Text="Add note">
-        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Href="/note" />
+        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="@(() => GoToNote(null))" />
     </MudTooltip>
 </span>

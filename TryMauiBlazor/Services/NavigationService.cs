@@ -1,19 +1,10 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Web;
 
 namespace TryMauiBlazor.Services;
 
 internal class NavigationService
 {
-    private IJSRuntime _jsRuntime;
-
-    public NavigationService(IJSRuntime jSRuntime)
-    {
-        _jsRuntime = jSRuntime;
-    }
-
     public event Action? QueryChanged;
     private NameValueCollection _queries = new();
     public NameValueCollection Queries

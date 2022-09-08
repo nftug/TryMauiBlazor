@@ -13,6 +13,8 @@ internal class NoteStoreService
 
     public List<Note> Notes { get; set; } = new();
 
+    public double ScrollY { get; set; }
+
     public async Task LoadNotes()
     {
         Notes = await _repositoryService.LoadNotesAsync();
