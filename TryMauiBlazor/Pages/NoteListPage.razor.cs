@@ -48,10 +48,7 @@ public partial class NoteListPage : ComponentBase
 
     private async Task GoToNote(string? filename)
     {
-        var result = await JSRuntime.InvokeAsync<JsonElement>("getScrollY");
-        double.TryParse(result.GetRawText(), out double scrollY);
-        NoteStoreService.ScrollY = scrollY;
-
+        NoteStoreService.ScrollY = await JSRuntime.InvokeAsync<double>("getScrollY");
         NavigationManager.NavigateTo($"/note/{filename}");
     }
 }
